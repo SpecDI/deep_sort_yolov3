@@ -48,7 +48,9 @@ def main(yolo):
         frame_index = -1 
         
     fps = 0.0
+    frame_number = 0
     while video_capture.isOpened():
+        frame_number+=1
         ret, frame = video_capture.read()  # frame shape 640*480*3
         if ret != True:
             break
@@ -77,6 +79,8 @@ def main(yolo):
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
             bbox = track.to_tlbr()
+            crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
+            cv2.imwrite("results/"+str(frame_number)+".jpg", crop_img)
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
             cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
