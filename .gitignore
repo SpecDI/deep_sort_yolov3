@@ -1,5 +1,8 @@
 # User defined ignore files
+*.mp4
+*.jpg
 
+*.txt
 # Keras model weights
 *.h5
 
