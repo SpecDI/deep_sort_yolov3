@@ -1,6 +1,8 @@
 from __future__ import division, print_function, absolute_import
 
 import os
+import glob
+
 from timeit import time
 import warnings
 import sys
@@ -29,9 +31,14 @@ def parse_args():
     parser.add_argument(
         "--fps", help="Frames per second.",
         default = 11)
+    parser.add_argument(
+        "--enable_cropping", help="Flag used to enable cropping of frames."
+        "When active the tracker no longer draws the bounding boxes",
+        default = 'False'
+    )
     return parser.parse_args()
 
-def main(yolo, sequence_file, fps):
+def main(yolo, sequence_file, fps, enable_cropping):
     # Compute output file
     file_name = os.path.splitext(os.path.basename(sequence_file))[0]
 
@@ -98,16 +105,23 @@ def main(yolo, sequence_file, fps):
                 continue 
             bbox = track.to_tlbr()
             crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
-            if not os.path.exists("results/" + file_name + '/' + str(track.track_id)):
-                os.mkdir("results/" + file_name + '/' +str(track.track_id))
-            if frame_number % 10 == 0:
-                cv2.imwrite("results/" + file_name + '/' +str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
-            #cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-            #cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+
+            # Build directory path
+            frames_dir_path = "results/" + file_name + '/' + str(track.track_id)
+            if not os.path.exists(frames_dir_path):
+                os.mkdir(frames_dir_path)
+            
+            # Write frame or annotate frame
+            if enable_cropping == "True":
+                cv2.imwrite(frames_dir_path + "/" + str(frame_number) + ".jpg", crop_img)
+            else:
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
+                cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
         for det in detections:
             bbox = det.to_tlbr()
-            #cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+            if enable_cropping != "True":
+                cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
             
         #cv2.imshow('', frame)
         
@@ -137,4 +151,4 @@ def main(yolo, sequence_file, fps):
 if __name__ == '__main__':
     # Parse user provided arguments
     args = parse_args()
-    main(YOLO(), args.sequence_file, args.fps)
+    main(YOLO(), args.sequence_file, args.fps, args.enable_cropping)
