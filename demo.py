@@ -100,7 +100,8 @@ def main(yolo, sequence_file, fps):
             crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
             if not os.path.exists("results/" + file_name + '/' + str(track.track_id)):
                 os.mkdir("results/" + file_name + '/' +str(track.track_id))
-            cv2.imwrite("results/" + file_name + '/' +str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
+            if frame_number % 10 == 0:
+                cv2.imwrite("results/" + file_name + '/' +str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
             #cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
             #cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
