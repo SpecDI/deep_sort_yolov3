@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from __future__ import division, print_function, absolute_import
 
 import os
@@ -20,7 +17,23 @@ from tools import generate_detections as gdet
 from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
-def main(yolo):
+import argparse
+
+def parse_args():
+    """ Parse command line arguments.
+    """
+    parser = argparse.ArgumentParser(description="Deep SORT")
+    parser.add_argument(
+        "--sequence_file", help="Path to input sequence",
+        default = 0)
+    parser.add_argument(
+        "--fps", help="Frames per second.",
+        default = 11)
+    return parser.parse_args()
+
+def main(yolo, sequence_file, fps):
+    # Compute output file
+    output_seq = './output/' + os.path.splitext(os.path.basename(sequence_file))[0] + '.avi'
 
    # Definition of the parameters
     max_cosine_distance = 0.3
@@ -35,15 +48,15 @@ def main(yolo):
     tracker = Tracker(metric)
 
     writeVideo_flag = True 
-    
-    video_capture = cv2.VideoCapture('1.1.6.mp4')
+
+    video_capture = cv2.VideoCapture(sequence_file)
 
     if writeVideo_flag:
     # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter('output.avi', fourcc, 15, (w, h))
+        out = cv2.VideoWriter(output_seq, fourcc, 11, (w, h))
         list_file = open('detection.txt', 'w')
         frame_index = -1 
         
@@ -80,7 +93,9 @@ def main(yolo):
                 continue 
             bbox = track.to_tlbr()
             crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
-            cv2.imwrite("results/"+str(frame_number)+".jpg", crop_img)
+            if not os.path.exists("results/"+str(track.track_id)):
+                os.mkdir("results/"+str(track.track_id))
+            cv2.imwrite("results/"+str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
             cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
@@ -114,4 +129,6 @@ def main(yolo):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    main(YOLO())
+    # Parse user provided arguments
+    args = parse_args()
+    main(YOLO(), args.sequence_file, args.fps)
