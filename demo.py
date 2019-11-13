@@ -106,7 +106,7 @@ def main(yolo, sequence_file, fps):
 
         for det in detections:
             bbox = det.to_tlbr()
-            cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+            #cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
             
         #cv2.imshow('', frame)
         
