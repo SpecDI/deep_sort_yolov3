@@ -33,7 +33,13 @@ def parse_args():
 
 def main(yolo, sequence_file, fps):
     # Compute output file
-    output_seq = './output/' + os.path.splitext(os.path.basename(sequence_file))[0] + '.avi'
+    file_name = os.path.splitext(os.path.basename(sequence_file))[0]
+
+    # Create results/file_name dir
+    if not os.path.exists('results/' + file_name):
+        os.mkdir('results/' + file_name)
+
+    output_seq = './output/' + file_name + '.avi'
 
    # Definition of the parameters
     max_cosine_distance = 0.3
@@ -87,17 +93,16 @@ def main(yolo, sequence_file, fps):
         # Call the tracker
         tracker.predict()
         tracker.update(detections)
-        
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
             bbox = track.to_tlbr()
             crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
-            if not os.path.exists("results/"+str(track.track_id)):
-                os.mkdir("results/"+str(track.track_id))
-            cv2.imwrite("results/"+str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-            cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+            if not os.path.exists("results/" + file_name + '/' + str(track.track_id)):
+                os.mkdir("results/" + file_name + '/' +str(track.track_id))
+            cv2.imwrite("results/" + file_name + '/' +str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
+            #cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
+            #cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
         for det in detections:
             bbox = det.to_tlbr()
