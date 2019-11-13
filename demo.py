@@ -96,8 +96,8 @@ def main(yolo, sequence_file, fps):
             if not os.path.exists("results/"+str(track.track_id)):
                 os.mkdir("results/"+str(track.track_id))
             cv2.imwrite("results/"+str(track.track_id)+"/"+str(frame_number)+".jpg", crop_img)
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-            cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+            #cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
+            #cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
         for det in detections:
             bbox = det.to_tlbr()
