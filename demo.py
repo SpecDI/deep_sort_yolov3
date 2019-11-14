@@ -127,7 +127,8 @@ def main(yolo, sequence_file, fps, enable_cropping):
         
         if writeVideo_flag:
             # save a frame
-            out.write(frame)
+            if enable_cropping == 'False':
+                out.write(frame)
             frame_index = frame_index + 1
             list_file.write(str(frame_index)+' ')
             if len(boxs) != 0:
