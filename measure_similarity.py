@@ -7,8 +7,9 @@ import numpy as np
 from PIL import Image
 import glob
 from matplotlib import pyplot as plt
-from SSIM_PIL import compare_ssim
+from skimage.metrics import structural_similarity as ssim
 import cv2
+from skimage.color import rgb2gray
 
 def parse_args():
   parser = argparse.ArgumentParser(description="Similarity measure")
@@ -22,12 +23,29 @@ def parse_args():
   )
   return parser.parse_args()
 
-def load_frames(dir_path):
-  frame_list = []
-  for file_path in glob.glob(dir_path + '*.jpg'):
-    frame_list.append(np.asarray(Image.open(file_path)))
+def resize_images(im1, im2):
+  if(im1.shape[0] > im2.shape[0]):
+    im1 = im1[:-(im1.shape[0] - im2.shape[0]), :]
+  else:
+    im2 = im2[:-(im2.shape[0] - im1.shape[0]), :]
 
-  return frame_list
+  if(im1.shape[1] > im2.shape[1]):
+    im1 = im1[:, :-(im1.shape[1] - im2.shape[1])]
+  else:
+    im2 = im2[:, :-(im2.shape[1] - im1.shape[1])]
+
+  return im1, im2
+
+def display_img_comparrison(im1, im2):
+  plt.subplot(1, 2, 1)
+  plt.imshow(im1, 'gray')
+  plt.axis('off')
+
+  plt.subplot(1, 2, 2)
+  plt.imshow(im2, 'gray')
+  plt.axis('off')
+
+  plt.show()
 
 def main(source_path, target_path):
   
@@ -47,27 +65,19 @@ def main(source_path, target_path):
 
   target_labels = list(map(lambda f: int(os.path.splitext(os.path.basename(f))[0].split('.')[3].split('_')[1]), target_labels))
   
+  # Computer average score
+  score = 0
   for tLabel in target_labels:
-    print(tLabel)
     sFrame_idx = (source_labels == tLabel)
     tFrame_idx = (target_frames == tLabel)
 
-    sFrame = np.asarray(source_frames[sFrame_idx])
-    tFrame = np.asarray(target_frames[tFrame_idx])
-    
-    if(sFrame.shape[0] < tFrame.shape[0]):
-      sFrame = cv2.copyMakeBorder(sFrame, tFrame.shape[0] - sFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
-    else:
-      tFrame = cv2.copyMakeBorder(tFrame, sFrame.shape[0] - tFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
+    sFrame = rgb2gray(np.asarray(source_frames[sFrame_idx]))
+    tFrame = rgb2gray(np.asarray(target_frames[tFrame_idx]))
 
-    if(sFrame.shape[1] < tFrame.shape[1]):
-      sFrame = cv2.copyMakeBorder(sFrame, tFrame.shape[1] - sFrame.shape[1], 0, 0, 0, cv2.BORDER_CONSTANT)
-    else:
-      tFrame = cv2.copyMakeBorder(tFrame, 0, 0, sFrame.shape[1] - tFrame.shape[1], 0, cv2.BORDER_CONSTANT)
+    sFrame, tFrame = resize_images(sFrame, tFrame)
+    score += ssim(sFrame, tFrame)
 
-    print(compare_ssim(Image.fromarray(sFrame, 'RGB'), Image.fromarray(tFrame, 'RGB')))
-
-
+  print(score / len(target_labels))
   
   
 
