@@ -48,24 +48,23 @@ def main(source_path, target_path):
   target_labels = list(map(lambda f: int(os.path.splitext(os.path.basename(f))[0].split('.')[3].split('_')[1]), target_labels))
   
   for tLabel in target_labels:
+    print(tLabel)
     sFrame_idx = (source_labels == tLabel)
     tFrame_idx = (target_frames == tLabel)
 
     sFrame = np.asarray(source_frames[sFrame_idx])
     tFrame = np.asarray(target_frames[tFrame_idx])
-
-    if(sFrame.shape[0] > tFrame.shape[0]):
-      sFrame = cv2.copyMakeBorder(sFrame, sFrame.shape[0] - tFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
+    
+    if(sFrame.shape[0] < tFrame.shape[0]):
+      sFrame = cv2.copyMakeBorder(sFrame, tFrame.shape[0] - sFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
     else:
-      tFrame = cv2.copyMakeBorder(tFrame, tFrame.shape[0] - tFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
+      tFrame = cv2.copyMakeBorder(tFrame, sFrame.shape[0] - tFrame.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT)
 
-    if(sFrame.shape[1] > tFrame.shape[1]):
-      sFrame = cv2.copyMakeBorder(sFrame, sFrame.shape[1] - tFrame.shape[1], 0, 0, 0, cv2.BORDER_CONSTANT)
+    if(sFrame.shape[1] < tFrame.shape[1]):
+      sFrame = cv2.copyMakeBorder(sFrame, tFrame.shape[1] - sFrame.shape[1], 0, 0, 0, cv2.BORDER_CONSTANT)
     else:
-      tFrame = cv2.copyMakeBorder(tFrame, tFrame.shape[1] - tFrame.shape[1], 0, 0, 0, cv2.BORDER_CONSTANT)
+      tFrame = cv2.copyMakeBorder(tFrame, 0, 0, sFrame.shape[1] - tFrame.shape[1], 0, cv2.BORDER_CONSTANT)
 
-    print(sFrame.shape)
-    print(tFrame.shape)
     print(compare_ssim(Image.fromarray(sFrame, 'RGB'), Image.fromarray(tFrame, 'RGB')))
 
 
