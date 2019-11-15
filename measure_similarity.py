@@ -6,12 +6,8 @@ import argparse
 
 from PIL import Image
 from matplotlib import pyplot as plt
-from skimage.metrics import structural_similarity as ssim
-from skimage.color import rgb2gray
-import cv2
 
 import numpy as np
-from scipy.spatial import distance as dist
 from scipy.stats import ks_2samp
 from scipy.stats import norm
 
