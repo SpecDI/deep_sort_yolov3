@@ -33,11 +33,11 @@ def display_comparison(im1, im2):
 
   # Display images on one row
   plt.subplot(2, 2, 1)
-  plt.imshow(im1, 'gray')
+  plt.imshow(im1)
   plt.axis('off')
 
   plt.subplot(2, 2, 2)
-  plt.imshow(im2, 'gray')
+  plt.imshow(im2)
   plt.axis('off')
 
   # Display pdfs on second row
