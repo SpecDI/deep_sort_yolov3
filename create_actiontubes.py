@@ -20,13 +20,14 @@ def process_crops(crops_file):
         line = fp.readline()
         while line:
             data = line.split(' ')
-            if not int(data[5]) in crops.keys():
-                crops[int(data[5])] = []
-            action = "unknown"
-            if len(data) > 10:
-                action = data[10].strip().replace('"', '').replace('/', 'or')
-            #crops[frame_number] = (track_id, xMin, yMin, xMax, yMax, action)
-            crops[int(data[5])].append((int(data[0]), int(data[1]), int(data[2]), int(data[3]), int(data[4]), action))
+            if int(data[6]) != 1 and int(data[7]) != 1:
+                if not int(data[5]) in crops.keys():
+                    crops[int(data[5])] = []
+                action = "unknown"
+                if len(data) > 10:
+                    action = data[10].strip().replace('"', '').replace('/', 'or')
+                #crops[frame_number] = (track_id, xMin, yMin, xMax, yMax, action)
+                crops[int(data[5])].append((int(data[0]), int(data[1]), int(data[2]), int(data[3]), int(data[4]), action))
             line = fp.readline()
     return crops
 
