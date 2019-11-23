@@ -34,11 +34,12 @@ def parse_args():
     parser.add_argument(
         "--enable_cropping", help="Flag used to enable cropping of frames."
         "When active the tracker no longer draws the bounding boxes",
-        default = 'False'
+        action = 'store_true'
     )
+    parser.set_defaults(enable_cropping = False)
     return parser.parse_args()
 
-def main(yolo, sequence_file, fps, enable_cropping):
+def main(yolo, sequence_file, fps_render_rate, enable_cropping):
     # Compute output file
     file_name = os.path.splitext(os.path.basename(sequence_file))[0]
 
@@ -69,7 +70,8 @@ def main(yolo, sequence_file, fps, enable_cropping):
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(output_seq, fourcc, 11, (w, h))
+        # Build video output handler only if we are not cropping
+        out = cv2.VideoWriter(output_seq, fourcc, fps_render_rate, (w, h)) if not enable_cropping else None
         list_file = open('detection.txt', 'w')
         frame_index = -1 
         
@@ -110,9 +112,8 @@ def main(yolo, sequence_file, fps, enable_cropping):
             frames_dir_path = "results/" + file_name + '/' + str(track.track_id)
             if not os.path.exists(frames_dir_path):
                 os.mkdir(frames_dir_path)
-            
             # Write frame or annotate frame
-            if enable_cropping == "True":
+            if enable_cropping:
                 cv2.imwrite(frames_dir_path + "/" + str(frame_number) + ".jpg", crop_img)
             else:
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
@@ -120,14 +121,14 @@ def main(yolo, sequence_file, fps, enable_cropping):
 
         for det in detections:
             bbox = det.to_tlbr()
-            if enable_cropping != "True":
+            if not enable_cropping:
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
             
         #cv2.imshow('', frame)
         
         if writeVideo_flag:
             # save a frame
-            if enable_cropping == 'False':
+            if not enable_cropping:
                 out.write(frame)
             frame_index = frame_index + 1
             list_file.write(str(frame_index)+' ')
@@ -142,7 +143,6 @@ def main(yolo, sequence_file, fps, enable_cropping):
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
     video_capture.release()
     if writeVideo_flag:
         out.release()
