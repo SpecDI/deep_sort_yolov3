@@ -27,7 +27,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Deep SORT")
     parser.add_argument(
         "--sequence_file", help="Path to input sequence",
-        default = 0)
+        required = True)
     parser.add_argument(
         "--fps", help="Frames per second.",
         default = 11)
