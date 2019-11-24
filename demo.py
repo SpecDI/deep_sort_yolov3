@@ -34,14 +34,37 @@ def parse_args():
     parser.add_argument(
         "--enable_cropping", help="Flag used to enable cropping of frames."
         "When active the tracker no longer draws the bounding boxes",
-        action = 'store_true'
+        action = 'store_true',
+        default = False
     )
-    parser.set_defaults(enable_cropping = False)
+    parser.add_argument(
+        "--labels_file", help="Path to file containing action labels",
+        default = None)
     return parser.parse_args()
 
-def main(yolo, sequence_file, fps_render_rate, enable_cropping):
+def parse_labels_file(labels_file):
+  action_map = dict()
+  with open(labels_file, 'r') as lb_handler:
+    line = lb_handler.readline()
+    
+    while line:
+      track_id = int(line.split(',')[0])
+      action_id = line.split(',')[1]
+
+      action_map[track_id] = action_id
+      line = lb_handler.readline()
+
+  return action_map
+
+def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     # Compute output file
     file_name = os.path.splitext(os.path.basename(sequence_file))[0]
+
+    # Compute the action map if labels provided
+    action_map = dict()
+    if labels_file != None:
+        action_map = parse_labels_file(labels_file)
+    print(action_map)
 
     # Create results/file_name dir
     if not os.path.exists('results/' + file_name):
@@ -117,7 +140,11 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping):
                 cv2.imwrite(frames_dir_path + "/" + str(frame_number) + ".jpg", crop_img)
             else:
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-                cv2.putText(frame, str(track.track_id) + ": Person",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+                
+                append_str = str(track.track_id) + ": Person"
+                if track.track_id in action_map:
+                    append_str += ' ' + action_map[track.track_id]
+                cv2.putText(frame, append_str,(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
         for det in detections:
             bbox = det.to_tlbr()
@@ -152,4 +179,4 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping):
 if __name__ == '__main__':
     # Parse user provided arguments
     args = parse_args()
-    main(YOLO(), args.sequence_file, args.fps, args.enable_cropping)
+    main(YOLO(), args.sequence_file, args.fps, args.enable_cropping, args.labels_file)
