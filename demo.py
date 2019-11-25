@@ -30,6 +30,7 @@ def parse_args():
         required = True)
     parser.add_argument(
         "--fps", help="Frames per second.",
+        type = int,
         default = 11)
     parser.add_argument(
         "--enable_cropping", help="Flag used to enable cropping of frames."
