@@ -2,6 +2,7 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import glob
+import json
 
 from timeit import time
 import warnings
@@ -71,7 +72,13 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     if not os.path.exists('results/' + file_name):
         os.mkdir('results/' + file_name)
 
+    # Create coords dir for movie
+    coords_path = 'coords/' + file_name + '.json'
+
     output_seq = './output/' + file_name + '.avi'
+
+    # Dict of coordinates for each tracked individual
+    track_map = dict()
 
    # Definition of the parameters
     max_cosine_distance = 0.3
@@ -132,6 +139,15 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
             bbox = track.to_tlbr()
             crop_img = frame[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])].copy()
 
+            # Append coordinates for individual to track map
+            if track.track_id not in track_map:
+                track_map[track.track_id] = dict()
+                track_map[track.track_id]['coords'] = [[int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])]]
+                track_map[track.track_id]['frame'] = [frame_number]
+            else:
+                track_map[track.track_id]['coords'].append([int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
+                track_map[track.track_id]['frame'].append(frame_number)
+
             # Build directory path
             frames_dir_path = "results/" + file_name + '/' + str(track.track_id)
             if not os.path.exists(frames_dir_path):
@@ -146,6 +162,9 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
                 if track.track_id in action_map:
                     append_str += ' ' + action_map[track.track_id]
                 cv2.putText(frame, append_str,(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+
+        with open(coords_path, 'w+') as fp:
+            json.dump(track_map, fp)
 
         for det in detections:
             bbox = det.to_tlbr()
