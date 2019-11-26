@@ -60,7 +60,9 @@ def parse_labels_file(labels_file):
 
 def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     # Compute output file
-    file_name = os.path.splitext(os.path.basename(sequence_file))[0]
+    file_name = os.path.splitext(os.path.basename(sequence_file))[0] if sequence_file != '0' else '0'
+    if sequence_file == '0':
+        sequence_file = 0
 
     # Compute the action map if labels provided
     action_map = dict()
@@ -100,7 +102,7 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        fourcc = cv2.VideoWriter_fourcc(*'XVID') #*'MJPG'
         # Build video output handler only if we are not cropping
         out = cv2.VideoWriter(output_seq, fourcc, fps_render_rate, (w, h)) if not enable_cropping else None
         list_file = open('detection.txt', 'w')
