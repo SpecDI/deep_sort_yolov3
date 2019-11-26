@@ -60,7 +60,9 @@ def parse_labels_file(labels_file):
 
 def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     # Compute output file
-    file_name = os.path.splitext(os.path.basename(sequence_file))[0]
+    file_name = os.path.splitext(os.path.basename(sequence_file))[0] if sequence_file != '0' else '0'
+    if sequence_file == '0':
+        sequence_file = 0
 
     # Compute the action map if labels provided
     action_map = dict()
