@@ -102,7 +102,7 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
     # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        fourcc = cv2.VideoWriter_fourcc(*'XVID') #*'MJPG'
         # Build video output handler only if we are not cropping
         out = cv2.VideoWriter(output_seq, fourcc, fps_render_rate, (w, h)) if not enable_cropping else None
         list_file = open('detection.txt', 'w')
