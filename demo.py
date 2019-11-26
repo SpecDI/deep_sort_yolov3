@@ -141,12 +141,9 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
 
             # Append coordinates for individual to track map
             if track.track_id not in track_map:
-                track_map[track.track_id] = dict()
-                track_map[track.track_id]['coords'] = [[int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])]]
-                track_map[track.track_id]['frame'] = [frame_number]
+                track_map[track.track_id] = [(frame_number, [int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])]
             else:
-                track_map[track.track_id]['coords'].append([int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
-                track_map[track.track_id]['frame'].append(frame_number)
+                track_map[track.track_id].append((frame_number, [int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])]))
 
             # Build directory path
             frames_dir_path = "results/" + file_name + '/' + str(track.track_id)
