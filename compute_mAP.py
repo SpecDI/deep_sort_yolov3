@@ -65,25 +65,8 @@ def mean_averagePrecision(gen_track_id, ref_track_id, track_map, ref_map):
       current_ref = ref_info[0]
     else:
       continue
-
-
-  # for frame_number in track_map[gen_track_id]['frame']:
-  #   if frame_number in list(map(int, (track_map[gen_track_id]['frame']))):
-  #     idx = track_map[gen_track_id]['frame'].index(frame_number)
-  #   else:
-  #     continue
-
-  #   current_gen = track_map[gen_track_id]['coords'][idx]
-    
-  #   if frame_number in ref_map[ref_track_id]['frame']:
-  #     idx = ref_map[ref_track_id]['frame'].index(frame_number)
-  #   else:
-  #     continue
-
-  #   current_ref = ref_map[ref_track_id]['coords'][idx]
     
     iou = bb_intersection_over_union(current_gen, current_ref)
-    #print('Frame ' + str(frame_number) +' IoU: ', iou)
     average_precision += iou
     count += 1
 
