@@ -55,23 +55,18 @@ def bb_intersection_over_union(boxA, boxB):
 def mean_averagePrecision(gen_track_id, ref_track_id, track_map, ref_map):
   average_precision = 0.0
   count = 0
-  for frame_number in track_map[gen_track_id]['frame']:
-    if frame_number in list(map(int, (track_map[gen_track_id]['frame']))):
-      idx = track_map[gen_track_id]['frame'].index(frame_number)
-    else:
-      continue
 
-    current_gen = track_map[gen_track_id]['coords'][idx]
+  for frame_info in track_map[gen_track_id]:
+    frame_number = frame_info[0]
+    current_gen = frame_info[1]
     
-    if frame_number in ref_map[ref_track_id]['frame']:
-      idx = ref_map[ref_track_id]['frame'].index(frame_number)
+    ref_info = [item[1] for item in ref_map[ref_track_id] if item[0] == frame_number]
+    if len(ref_info) == 1:
+      current_ref = ref_info[0]
     else:
       continue
-
-    current_ref = ref_map[ref_track_id]['coords'][idx]
     
     iou = bb_intersection_over_union(current_gen, current_ref)
-    #print('Frame ' + str(frame_number) +' IoU: ', iou)
     average_precision += iou
     count += 1
 
@@ -101,12 +96,9 @@ def main(gen_coords, ref_coords, map_file):
       frame_number = lineSplit[5]
 
       if currentId not in ref_map:
-        ref_map[currentId] = dict()
-        ref_map[currentId]['coords'] = [corners]
-        ref_map[currentId]['frame'] = [frame_number]
+        ref_map[currentId] = [(frame_number, corners)]
       else:
-        ref_map[currentId]['coords'].append(corners)
-        ref_map[currentId]['frame'].append(frame_number)
+        ref_map[currentId].append((frame_number, corners))
 
       line = fp.readline()
 
