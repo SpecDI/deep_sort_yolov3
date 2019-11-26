@@ -11,15 +11,19 @@ def parse_args():
   """
   parser = argparse.ArgumentParser(description="mAP Estimate")
   parser.add_argument(
-      "--gen_coords", help="Path to input sequence",
-      required = True)
+    "--gen_coords", help = "Path to input sequence",
+    required = True)
   parser.add_argument(
-      "--ref_coords", help="Path to file containing action labels",
-      required = True)
+    "--ref_coords", help = "Path to file containing action labels",
+    required = True)
+  parser.add_argument(
+    "--map_file", help = "Path to map file between gen coords to ref coords",
+    default = "./okutama_labels/okutama_map_labels.json"
+  )
   return parser.parse_args()
 
-def load_labelMapping():
-  with open('./okutama_labels/okutama_map_labels.json', 'r') as handle:
+def load_labelMapping(map_file):
+  with open(map_file, 'r') as handle:
     dictdump = json.loads(handle.read())
   
   return {int(k):int(v) for k,v in dictdump.items()}
@@ -73,7 +77,7 @@ def mean_averagePrecision(gen_track_id, ref_track_id, track_map, ref_map):
 
   return average_precision / count
 
-def main(gen_coords, ref_coords):
+def main(gen_coords, ref_coords, map_file):
   # Load dict of gen coords
   with open(gen_coords, 'r') as fp:
     track_map = json.load(fp)
@@ -84,7 +88,7 @@ def main(gen_coords, ref_coords):
 
   # Load mapping between ids
   # gen id -> ref id
-  id_map = load_labelMapping()
+  id_map = load_labelMapping(map_file)
 
   # Open ref file
   with open(ref_coords, 'r') as fp:
@@ -107,9 +111,10 @@ def main(gen_coords, ref_coords):
       line = fp.readline()
 
   for gen_track_id in id_map:
-    print(mean_averagePrecision(gen_track_id, id_map[gen_track_id], track_map, ref_map))
+    mAP_score = mean_averagePrecision(gen_track_id, id_map[gen_track_id], track_map, ref_map)
+    print(f'Id {gen_track_id} score: {mAP_score}')
 
 if __name__ == '__main__':
     # Parse user provided arguments
     args = parse_args()
-    main(args.gen_coords, args.ref_coords)
+    main(args.gen_coords, args.ref_coords, args.map_file)
