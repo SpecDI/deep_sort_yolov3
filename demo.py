@@ -171,7 +171,7 @@ def main(yolo, sequence_file, fps_render_rate, enable_cropping, labels_file):
             if not enable_cropping:
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
             
-        #cv2.imshow('', frame)
+        cv2.imshow('', cv2.resize(frame, (1200, 675)))
         
         if writeVideo_flag:
             # save a frame
