@@ -6,7 +6,10 @@ coords/*.json
 
 # User defined ignore files
 *.mp4
+*.MP4
 *.jpg
+*.MOV
+*.mov
 
 *.txt
 # Keras model weights
