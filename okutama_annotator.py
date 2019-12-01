@@ -57,7 +57,6 @@ def main(sequence_file, okutama_labels):
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     # Build video output handler only if we are not cropping
     out = cv2.VideoWriter(output_seq, fourcc, 11, (w, h))
-    list_file = open('detection.txt', 'w')
 
   frame_number = 0
   while video_capture.isOpened():
@@ -88,7 +87,6 @@ def main(sequence_file, okutama_labels):
   video_capture.release()
   if writeVideo_flag:
     out.release()
-    list_file.close()
   cv2.destroyAllWindows()
 
 
