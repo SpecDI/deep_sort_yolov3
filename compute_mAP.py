@@ -102,9 +102,13 @@ def main(gen_coords, ref_coords, map_file):
 
       line = fp.readline()
 
+  mAP_score = 0.0
   for gen_track_id in id_map:
-    mAP_score = mean_averagePrecision(gen_track_id, id_map[gen_track_id], track_map, ref_map)
-    print(f'Id {gen_track_id} score: {mAP_score}')
+    avg_IoU = mean_averagePrecision(gen_track_id, id_map[gen_track_id], track_map, ref_map)
+    print(f'Id {gen_track_id} score: {avg_IoU}')
+    mAP_score += avg_IoU
+
+  print('Map score: ', mAP_score / len(id_map))
 
 if __name__ == '__main__':
     # Parse user provided arguments
